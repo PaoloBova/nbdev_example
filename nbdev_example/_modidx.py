@@ -5,4 +5,4 @@ d = { 'settings': { 'branch': 'main',
                 'doc_host': 'https://PaoloBova.github.io',
                 'git_url': 'https://github.com/PaoloBova/nbdev_example',
                 'lib_path': 'nbdev_example'},
-  'syms': {'nbdev_example.core': {'nbdev_example.core.foo': ('core.html#foo', 'nbdev_example/core.py')}}}
+  'syms': {'nbdev_example.core': {'nbdev_example.core.generate_crd': ('core.html#generate_crd', 'nbdev_example/core.py')}}}
