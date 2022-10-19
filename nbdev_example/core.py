@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['generate_crd']
 
-# %% ../nbs/00_core.ipynb 5
+# %% ../nbs/00_core.ipynb 8
 def generate_crd(config:dict={}):
     "Generate a model of a Collective-risk dilemma, using any specifed config options."
     game = {}
