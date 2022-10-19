@@ -5,5 +5,5 @@ website:
   title: "nbdev_example"
   site-url: "https://PaoloBova.github.io/nbdev_example"
   description: "An example project for learning nbdev"
-  repo-branch: main
+  repo-branch: dev
   repo-url: "https://github.com/PaoloBova/nbdev_example"
