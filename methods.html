@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="A set of methods for solving Evolutionary Games (see Nowak 2006 and the references section)">
+
+<title>nbdev_example - Methods in Evolutionary Game Theory</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="nbdev_example - Methods in Evolutionary Game Theory">
+<meta property="og:description" content="A set of methods for solving Evolutionary Games (see Nowak 2006 and the references section)">
+<meta property="og:site-name" content="nbdev_example">
+<meta name="twitter:title" content="nbdev_example - Methods in Evolutionary Game Theory">
+<meta name="twitter:description" content="A set of methods for solving Evolutionary Games (see Nowak 2006 and the references section)">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">nbdev_example</span>
+    </a>
+  </div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Methods in Evolutionary Game Theory</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">nbdev_example</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link">Collective-risk Dilemmas</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./methods.html" class="sidebar-item-text sidebar-link active">Methods in Evolutionary Game Theory</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#utilities" id="toc-utilities" class="nav-link active" data-scroll-target="#utilities">Utilities</a></li>
+  <li><a href="#finite-markov-chains" id="toc-finite-markov-chains" class="nav-link" data-scroll-target="#finite-markov-chains">Finite Markov Chains</a>
+  <ul class="collapse">
+  <li><a href="#fermi-social-learning" id="toc-fermi-social-learning" class="nav-link" data-scroll-target="#fermi-social-learning">Fermi social learning</a></li>
+  <li><a href="#fixation-rate" id="toc-fixation-rate" class="nav-link" data-scroll-target="#fixation-rate">Fixation rate</a></li>
+  <li><a href="#build-transition-matrix" id="toc-build-transition-matrix" class="nav-link" data-scroll-target="#build-transition-matrix">Build transition matrix</a></li>
+  <li><a href="#find-ergodic-strategy-distribution" id="toc-find-ergodic-strategy-distribution" class="nav-link" data-scroll-target="#find-ergodic-strategy-distribution">Find ergodic strategy distribution</a></li>
+  <li><a href="#run-full-markov-chain-algorithm" id="toc-run-full-markov-chain-algorithm" class="nav-link" data-scroll-target="#run-full-markov-chain-algorithm">Run full markov chain algorithm</a></li>
+  </ul></li>
+  <li><a href="#notebook-footer" id="toc-notebook-footer" class="nav-link" data-scroll-target="#notebook-footer">Notebook Footer</a>
+  <ul class="collapse">
+  <li><a href="#todo" id="toc-todo" class="nav-link" data-scroll-target="#todo">TODO</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/PaoloBova/nbdev_example/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Methods in Evolutionary Game Theory</h1>
+</div>
+
+<div>
+  <div class="description">
+    A set of methods for solving Evolutionary Games (see Nowak 2006 and the references section)
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="utilities" class="level2">
+<h2 class="anchored" data-anchor-id="utilities">Utilities</h2>
+<blockquote class="blockquote">
+<p>A set of functions that I commonly use in notebooks</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> thread_macro(current_value, <span class="op">*</span>funcs, identifier<span class="op">=</span><span class="st">"self"</span>):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Pipes current_value through each function in funcs.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Each element in funcs is either a function or a list/tuple containing</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">    a function followed by its other arguments.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    This function imitates the Clojure as-if threading macro.</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Notes: By default current_value is threaded as the first argument of the</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    function call. Yet, one can use the syntax [func, arg1, "self", arg2] (or</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">    (func, arg1, "self", arg2)) so that current_value will instead be threaded</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">    in whatever place "self" would be. If you need to, you can set this "self"</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">    identifier to a different value.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> func <span class="kw">in</span> funcs:</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(func, (<span class="bu">list</span>, <span class="bu">tuple</span>)):</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            place <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i, el <span class="kw">in</span> <span class="bu">enumerate</span>(func[<span class="dv">1</span>:]):</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> el <span class="op">==</span> identifier:</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                    place <span class="op">=</span> i</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                    func <span class="op">=</span> [el <span class="cf">for</span> el <span class="kw">in</span> func <span class="cf">if</span> el <span class="op">!=</span> identifier]</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            func, args1, args2 <span class="op">=</span> func[<span class="dv">0</span>], func[<span class="dv">1</span>:place <span class="op">+</span> <span class="dv">1</span>], func[place <span class="op">+</span> <span class="dv">1</span>:]</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            current_value <span class="op">=</span> func(<span class="op">*</span>args1, current_value, <span class="op">*</span>args2)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            current_value <span class="op">=</span> func(current_value)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> current_value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> broadcast_concatenate_axes(ax1, ax2):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Broadcast both numpy axes and concatenate along last dimension"""</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    ax1new <span class="op">=</span> ax1</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(np.ndim(ax2) <span class="op">-</span> <span class="dv">1</span>):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        ax1new <span class="op">=</span> ax1new[..., <span class="va">None</span>, :]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    ax2new <span class="op">=</span> ax2</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(np.ndim(ax1) <span class="op">-</span> <span class="dv">1</span>):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        ax2new <span class="op">=</span> ax2new[<span class="va">None</span>, ..., :]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ax1new <span class="op">=</span> np.broadcast_to(ax1new,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                             (<span class="op">*</span>ax1.shape[:<span class="op">-</span><span class="dv">1</span>], <span class="op">*</span>ax2.shape[:<span class="op">-</span><span class="dv">1</span>], ax1.shape[<span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    ax2new <span class="op">=</span> np.broadcast_to(ax2new,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                             (<span class="op">*</span>ax1.shape[:<span class="op">-</span><span class="dv">1</span>], <span class="op">*</span>ax2.shape[:<span class="op">-</span><span class="dv">1</span>], ax2.shape[<span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> np.concatenate((ax1new, ax2new), axis<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ax</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_parameter_grid_from_axes(axes):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Build a numpy array with all combinations of elements specified in axes.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Each axis in axes gives an array of values that should be repeated for each</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">    value in the other axes. Primitive types and lists of primitive types are</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">    first promoted to numpy arrays.</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    dtypes <span class="op">=</span> (<span class="bu">float</span>, <span class="bu">int</span>, <span class="bu">bool</span>, <span class="bu">str</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, axis <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        condition <span class="op">=</span> <span class="bu">isinstance</span>(axis, dtypes) <span class="kw">or</span> <span class="bu">all</span>(</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            <span class="bu">isinstance</span>(el, dtypes) <span class="cf">for</span> el <span class="kw">in</span> <span class="bu">list</span>(axis))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        axes[i] <span class="op">=</span> np.array([axis]).T <span class="cf">if</span> condition <span class="cf">else</span> axis</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    tensor <span class="op">=</span> functools.<span class="bu">reduce</span>(broadcast_concatenate_axes, axes)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tensor.reshape((<span class="op">-</span><span class="dv">1</span>, tensor.shape[<span class="op">-</span><span class="dv">1</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="finite-markov-chains" class="level2">
+<h2 class="anchored" data-anchor-id="finite-markov-chains">Finite Markov Chains</h2>
+<p>We examine a finite population of players using different strategies who engage in social learning.</p>
+<p>In the limit of small mutations, most of the time everyone plays the same strategy. States in which everyone plays the same strategy are known as <strong>monomorphic states</strong>. Occassionally, mutant strategies can fixate in the population, resulting in everyone adopting the same new strategy. We can use Markov Chains to analyse the relative frequencies with which each strategy is played by the population.</p>
+<p>The steps for computing the ergodic (i.e.&nbsp;long-run) strategy distribution is as follows:</p>
+<ol type="1">
+<li>Build a transition matrix between all monomorphic states</li>
+<li>Find the unit eigenvector associated with this transition matrix</li>
+</ol>
+<section id="fermi-social-learning" class="level3">
+<h3 class="anchored" data-anchor-id="fermi-social-learning">Fermi social learning</h3>
+<blockquote class="blockquote">
+<p>A Fermi social learning rule means that individuals make pairwise comparisons between their own strategy and and another strategy in the population that they may choose to copy.</p>
+</blockquote>
+<section id="derivation" class="level4">
+<h4 class="anchored" data-anchor-id="derivation">Derivation</h4>
+<p>Each period of the evolutionary game involves individuals being randomly selected to play against one another individual.</p>
+<p>Letting <span class="math inline">\(Z\)</span> denote the size of the population, and <span class="math inline">\(π\)</span> denote the game’s payoff matrix, we can compute the fitness of a strategy, <span class="math inline">\(B\)</span> for example, when <span class="math inline">\(k\)</span> individuals are of type <span class="math inline">\(B\)</span> as follows:</p>
+<p><span class="math display">\[\begin{equation}
+ΠB_k = πBA \frac{k-1}{Z} + πBB \frac{Z-k}{Z}
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(πBA\)</span> and <span class="math inline">\(πBB\)</span> are the payoffs for playing <span class="math inline">\(B\)</span> against type <span class="math inline">\(A\)</span> or <span class="math inline">\(B\)</span> respectively.</p>
+<p>The <strong>Fermi social learning rule</strong> adopts strategy <span class="math inline">\(B\)</span> selected from the population over their current strategy <span class="math inline">\(A\)</span> with probability given by:</p>
+<p><span class="math display">\[\begin{equation}
+Pr(adopt \, B | k) = \frac{1}{(1 + \exp^{-\beta (ΠB_k - ΠA_k)})}
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(ΠB_k - ΠA_k\)</span> is the relative fitness of strategy <span class="math inline">\(B\)</span> over <span class="math inline">\(A\)</span> in a population with <span class="math inline">\(k\)</span> individuals of type <span class="math inline">\(B\)</span>, the rest of type <span class="math inline">\(A\)</span>. Notice how the larger the relative fitness, the closer the denominator, and therefore the probability, is to <span class="math inline">\(1\)</span>.</p>
+<p>Using the Fermi social learning rule above, we can write the probability of increasing the number of type <span class="math inline">\(A\)</span> individuals as</p>
+<p><span class="math display">\[\begin{equation}
+T^+_B = \frac{Z-k}{Z} \frac{k}{Z} Pr(adopt \, B | k)
+\end{equation}\]</span></p>
+<p>as an individual of type <span class="math inline">\(A\)</span> needs to randomly be chosen to compare their strategy against someone of type <span class="math inline">\(B\)</span>.</p>
+<p>and the probability of decreasing the number of type <span class="math inline">\(B\)</span> individuals as</p>
+<p><span class="math display">\[\begin{equation}
+T^-_B = \frac{k}{Z} \frac{Z-k}{Z} Pr(adopt \, A | k)
+\end{equation}\]</span></p>
+<p>as an individual of type <span class="math inline">\(B\)</span> needs to randomly be chosen to compare their strategy against someone of type <span class="math inline">\(A\)</span>.</p>
+</section>
+<section id="definition" class="level4">
+<h4 class="anchored" data-anchor-id="definition">Definition</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fermi_learning(β:nptyping.NDArray, <span class="co"># learning rate</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                   fitnessA:nptyping.NDArray, <span class="co"># fitness of strategy A</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                   fitnessB:nptyping.NDArray <span class="co"># fitness of strategy B</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                  ) <span class="op">-&gt;</span> nptyping.NDArray:</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute the likelihood that a player with strategy B adopts strategy A using the fermi function."""</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>β<span class="op">*</span>(fitnessA <span class="op">-</span> fitnessB)))<span class="op">**-</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show_doc(fermi_learning)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="examples-and-tests" class="level4">
+<h4 class="anchored" data-anchor-id="examples-and-tests">Examples and Tests</h4>
+<p>When each strategy has the same fitness, then the likelihoodthat a player adopts strategy <span class="math inline">\(A\)</span> is 50%, no matter the value of <span class="math inline">\(\beta\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> fermi_learning(np.array([<span class="dv">1</span>]), </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                   np.array([<span class="dv">5</span>]),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                   np.array([<span class="dv">5</span>]))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>nptyping.assert_isinstance(x, nptyping.NDArray[nptyping.Shape[<span class="st">"1"</span>], typing.Any])</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>test_eq(x, <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="fixation-rate" class="level3">
+<h3 class="anchored" data-anchor-id="fixation-rate">Fixation rate</h3>
+<blockquote class="blockquote">
+<p>The fixation rate for type B in a population of type A is defined as the probability that the appearance of a mutant of type B leads to the entire population adopting type B instead of A, i.e.&nbsp;what is the likelihood that a mutant of type A invades population B.</p>
+</blockquote>
+<section id="derivation-1" class="level4">
+<h4 class="anchored" data-anchor-id="derivation-1">Derivation</h4>
+<p>A derivation of the fixation rate defined below can be found in Nowak 2006 (reproduced below).</p>
+<blockquote class="blockquote">
+<p>Consider a one-dimensional stochastic process on a discrete state space, $ i {0, 1, , N}$ that represents the number of individuals in a population of <span class="math inline">\(N\)</span> individuals who are of type <span class="math inline">\(A\)</span>, the rest are type <span class="math inline">\(B\)</span>.</p>
+<p>In each stochastic event, the number of individuals of type <span class="math inline">\(A\)</span> can at most increase or decrease by 1.</p>
+<p>For a given number of individuals, <span class="math inline">\(i\)</span>, let <span class="math inline">\(a_i\)</span>, <span class="math inline">\(b_i\)</span>, and <span class="math inline">\(1 - a_i - b_i\)</span> represent the chance of an increase, decrease, or no change in <span class="math inline">\(i\)</span>.</p>
+<p>This stochastic process follows the transition matrix ,<span class="math inline">\(P\)</span> (<em>not to be confused with the transition matrices we discuss elsewhere!</em>)</p>
+<p><span class="math display">\[\begin{equation}
+P \, = \, \begin{pmatrix}
+1 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 0\\
+b_1 &amp; (1 - a_1 - b_1) &amp; a_1 &amp; \cdots &amp; 0 &amp; 0 &amp; 0\\
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \vdots &amp; \vdots\\
+0 &amp; 0 &amp; 0 &amp; \cdots &amp; b_{n-1} &amp; (1 - a_{n-1} - b_{n-1}) &amp; a_{n-1}\\
+0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 &amp; 1\\
+\end{pmatrix}
+\end{equation}\]</span></p>
+<p>Denote by <span class="math inline">\(x_i\)</span> the probability of reaching state <span class="math inline">\(N\)</span> when starting from <span class="math inline">\(i\)</span>.</p>
+<p>From transition matrix <span class="math inline">\(P\)</span> above, we can see that <span class="math inline">\(x_i\)</span> must satisfy:</p>
+<p><span class="math inline">\(x_0 = 0\)</span></p>
+<p><span class="math inline">\(x_i = b_i x_{i-1} + (1 - a_i - b_i) x_i + a_i x_{i+1}\)</span></p>
+<p><span class="math inline">\(x_N = 1\)</span></p>
+<p>The fixation rate for a mutant A in a population of type B is clearly <span class="math inline">\(x_1\)</span></p>
+<p>We can solve for <span class="math inline">\(x_i\)</span> by rewriting the above as <span class="math inline">\(b_i x_i - b_i x_{i-1} = a_i x_{i+1} - a_i x_i\)</span>.</p>
+<p>We can denote <span class="math inline">\(y_i = x_i - x_{i-1}\)</span> to simplify the above to <span class="math inline">\(y_{i+1} = \frac{b_i}{a_i} y_i\)</span></p>
+<p>Notice that <span class="math inline">\(\sum_{i=1}^N{y_i} = x_N - x_0 = 1\)</span> and that <span class="math inline">\(y_1 = x_1\)</span></p>
+<p>We can use the above to write <span class="math display">\[\begin{equation}
+x_1 + {\sum_{i=2}^N{y_i}} = x_1 (1 + {\sum_{i=1}^{N-1}{\prod_{j=1}^{i} \frac{b_j}{a_j}}}) = 1
+\end{equation}\]</span></p>
+<p>And so <span class="math display">\[\begin{equation}
+x_1 = \frac{1}{(1 + \sum_{i=1}^{N-1}{\prod_{j=1}^{i} \frac{b_j}{a_j}})}
+\end{equation}\]</span></p>
+<p>Note that <span class="math inline">\(x_1\)</span> is the fixation rate for a mutant <span class="math inline">\(A\)</span> in a population of type <span class="math inline">\(B\)</span></p>
+<p><em>Also note that <span class="math inline">\(x_{N-1}\)</span> is the fixation rate for a mutant <span class="math inline">\(B\)</span> in a population of type <span class="math inline">\(A\)</span>. We could find expressions for all <span class="math inline">\(x_i\)</span> if we note that <span class="math inline">\(x_i = x_1 (1 + \sum_{j=1}^{i-1}{\prod_{k=1}^{j} \frac{b_k}{a_k}})\)</span> (see Nowak 2006 for further details).</em></p>
+</blockquote>
+</section>
+<section id="definition-1" class="level4">
+<h4 class="anchored" data-anchor-id="definition-1">Definition</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>T_type <span class="op">=</span> <span class="bu">list</span>[nptyping.NDArray[nptyping.Shape[<span class="st">"N_models, N_strategies, N_strategies"</span>], typing.Any]]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fixation_rate(Tplus: T_type, <span class="co"># A list of NDarrays, one array for each possible number of mutants in the population, each array should be of shape (n_models, n_strategies, n_strategies) for computing all fixation rates for each model; the probability of gaining one mutant</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                  Tneg: T_type, <span class="co"># A list of NDarrays, one array for each possible number of mutants in the population, each array should be of shape (n_models, n_strategies, n_strategies) for computing all fixation rates for each model; the probability of losing one mutant</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                 ) <span class="op">-&gt;</span> nptyping.NDArray[nptyping.Shape[<span class="st">"N_models, N_strategies, N_strategies"</span>], typing.Any]:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calculate the likelihood that a mutant invades the population."""</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> <span class="bu">len</span>(Tplus) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    ρ <span class="op">=</span> (np.<span class="bu">sum</span>([np.prod([Tneg[j]<span class="op">/</span>Tplus[j]</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                         <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>,i<span class="op">+</span><span class="dv">1</span>)],</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                        axis<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                        keepdims<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>,Z)],</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                axis<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                keepdims<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="dv">1</span>)<span class="op">**-</span><span class="dv">1</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ρ</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show_doc(fixation_rate)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="examples-and-tests-1" class="level4">
+<h4 class="anchored" data-anchor-id="examples-and-tests-1">Examples and Tests</h4>
+<p>When the chance of gaining a mutant equals the chance of losing a mutant, then the fixation rate will be 50%</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Tplus_example <span class="op">=</span> [np.array([<span class="fl">0.4</span>]), </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.4</span>]),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.4</span>])]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>Tneg_example <span class="op">=</span>  [np.array([<span class="fl">0.4</span>]), </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.4</span>]),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.4</span>])]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fixation_rate_result <span class="op">=</span> fixation_rate(Tplus_example, Tneg_example)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>nptyping.assert_isinstance(fixation_rate_result,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                           nptyping.NDArray[nptyping.Shape[<span class="st">"1"</span>], typing.Any])</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>test_eq(fixation_rate_result,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        np.array([<span class="fl">0.5</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>When the chance of gaining a mutant is half the chance of losing a mutant, then the fixation rate will be 1/3</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Tplus_example <span class="op">=</span> [np.array([<span class="fl">0.2</span>]), </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.2</span>]),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.2</span>])]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>Tneg_example <span class="op">=</span>  [np.array([<span class="fl">0.4</span>]), </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.4</span>]),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                 np.array([<span class="fl">0.4</span>])]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fixation_rate_result <span class="op">=</span> fixation_rate(Tplus_example, Tneg_example)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>nptyping.assert_isinstance(fixation_rate_result,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                           nptyping.NDArray[nptyping.Shape[<span class="st">"1"</span>], typing.Any])</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>test_eq(fixation_rate_result,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        np.array([<span class="dv">1</span><span class="op">/</span><span class="dv">3</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="build-transition-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="build-transition-matrix">Build transition matrix</h3>
+<p>https://stackoverflow.com/questions/59498869/how-can-i-type-hint-a-nested-object-in-python</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_transition_matrix(models):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Build a transition matrix between all monomorphic states</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">    using the fermi social learning rule for each model."""</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    Z, S, β <span class="op">=</span> [models[k] <span class="cf">for</span> k <span class="kw">in</span> [<span class="st">'Z'</span>,<span class="st">'strategy_set'</span>, <span class="st">'β'</span>]]</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    π <span class="op">=</span> models[<span class="st">'payoffs'</span>]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    n_models <span class="op">=</span> π.shape[<span class="dv">0</span>]</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    M <span class="op">=</span> np.zeros(( n_models, <span class="bu">len</span>(S), <span class="bu">len</span>(S)))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row_ind, s <span class="kw">in</span> <span class="bu">enumerate</span>(S):</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col_ind, sₒ <span class="kw">in</span> <span class="bu">enumerate</span>(S):</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> row_ind <span class="op">==</span> col_ind:</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>                <span class="co"># We compute these entries later</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>            πAA <span class="op">=</span> π[:, row_ind, row_ind]</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>            πAB <span class="op">=</span> π[:, row_ind, col_ind]</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>            πBA <span class="op">=</span> π[:, col_ind, row_ind]</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>            πBB <span class="op">=</span> π[:, col_ind, col_ind]</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>            ΠA <span class="op">=</span> [πAA<span class="op">*</span>(k<span class="op">-</span><span class="dv">1</span>)<span class="op">/</span>Z <span class="op">+</span> πAB<span class="op">*</span>(Z<span class="op">-</span>k)<span class="op">/</span>Z</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>                  <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(Z<span class="op">+</span><span class="dv">1</span>)]</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>            ΠB <span class="op">=</span> [πBA<span class="op">*</span>k<span class="op">/</span>Z <span class="op">+</span> πBB<span class="op">*</span>(Z<span class="op">-</span>k<span class="op">-</span><span class="dv">1</span>)<span class="op">/</span>Z</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>                  <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(Z<span class="op">+</span><span class="dv">1</span>)]</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>            Tplus <span class="op">=</span> [(Z <span class="op">-</span> k)<span class="op">/</span>Z</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>                     <span class="op">*</span> k<span class="op">/</span>Z</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>                     <span class="op">*</span> fermi_learning(β, ΠA[k], ΠB[k])</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>                     <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(Z<span class="op">+</span><span class="dv">1</span>)]</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>            Tneg <span class="op">=</span> [(Z <span class="op">-</span> k)<span class="op">/</span>Z</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>                    <span class="op">*</span> k<span class="op">/</span>Z</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>                    <span class="op">*</span> fermi_learning(β, ΠB[k], ΠA[k])</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(Z<span class="op">+</span><span class="dv">1</span>)]</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>            ρ <span class="op">=</span> fixation_rate(Tplus, Tneg)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>            M[:, col_ind, row_ind] <span class="op">=</span> ρ <span class="op">/</span> <span class="bu">max</span>(<span class="dv">1</span>, <span class="bu">len</span>(S)<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row_ind <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(S)):</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>        col_inds <span class="op">=</span> [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(S)) <span class="cf">if</span> i <span class="op">!=</span> row_ind]</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>        no_move <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.<span class="bu">sum</span>(M[:, row_ind, col_inds], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>        M[:, row_ind, row_ind] <span class="op">=</span> no_move</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="op">**</span>models, <span class="st">"transition_matrix"</span>: M}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="find-ergodic-strategy-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="find-ergodic-strategy-distribution">Find ergodic strategy distribution</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_ergodic_distribution(models):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Find the ergodic distribution of a markov chain with the</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">    given transition matrix."""</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    M <span class="op">=</span> models.get(<span class="st">"transition_matrix"</span>, np.zeros((<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># find unit eigenvector of markov chain</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    Λ,V <span class="op">=</span> np.linalg.eig(M.transpose(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">1</span>))</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> np.isclose(Λ, <span class="dv">1</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if multiple unit eigenvalues then choose the first</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.zeros_like(x, dtype<span class="op">=</span><span class="bu">bool</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> np.arange(<span class="bu">len</span>(x)), x.argmax(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    y[idx] <span class="op">=</span> x[idx]</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    ergodic <span class="op">=</span> np.array(V.transpose(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">1</span>)[y], dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ensure ergodic frequencies are positive and sum to 1</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    ergodic <span class="op">=</span> np.<span class="bu">abs</span>(ergodic) <span class="op">/</span> np.<span class="bu">sum</span>(np.<span class="bu">abs</span>(ergodic), axis<span class="op">=</span><span class="dv">1</span>)[:, <span class="va">None</span>]</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="op">**</span>models, <span class="st">'ergodic'</span>:ergodic}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-full-markov-chain-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="run-full-markov-chain-algorithm">Run full markov chain algorithm</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> markov_chain(models):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Find the ergodic distribution of the evolutionary</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">    game given by each model in models."""</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> thread_macro(models,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                        build_transition_matrix,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                        find_ergodic_distribution)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="notebook-footer" class="level1">
+<h1>Notebook Footer</h1>
+<p><a href="https://towardsdatascience.com/write-markdown-latex-in-the-jupyter-notebook-10985edb91fd">Tips on using Latex in Markdown</a></p>
+<section id="todo" class="level2">
+<h2 class="anchored" data-anchor-id="todo">TODO</h2>
+<ul>
+<li>add unit tests for markov_chain</li>
+<li>add integration tests for makov_chain</li>
+<li>Move utilities to its own notebook or to its own package</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
